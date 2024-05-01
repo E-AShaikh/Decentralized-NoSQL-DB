@@ -1,0 +1,1 @@
+[{"balance":1000.5,"clientName":"John Doe","accountType":"Savings","id":2,"accountNumber":123456789,"hasInsurance":true},{"balance":1000.5,"clientName":"John Doe","accountType":"Savings","id":3,"accountNumber":123456789,"hasInsurance":true},{"balance":500.75,"clientName":"Jane Smith","accountType":"Checking","id":1,"accountNumber":987654321,"hasInsurance":false}]
