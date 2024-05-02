@@ -16,8 +16,8 @@ public class Collection {
     private boolean hasAffinity;
     private int nodeWithAffinity;
     public Collection(){
-        nodeWithAffinity = AffinityDistributor.getInstance().hasAffinity();
-        hasAffinity = ClusterManager.getInstance().getNodeNumber() == nodeWithAffinity;
+//        nodeWithAffinity = AffinityDistributor.getInstance().hasAffinity();
+//        hasAffinity = ClusterManager.getInstance().getNodeNumber() == nodeWithAffinity;
         indexes=new HashMap<>();
         idIndex=new HashMap<>();
         documentLock=new ReentrantLock();

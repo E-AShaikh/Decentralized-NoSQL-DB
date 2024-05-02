@@ -9,7 +9,7 @@ import lombok.Data;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
+import org.json.JSONObject;
 import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
@@ -55,7 +55,7 @@ public class NoSQLDatabaseConnection {
 //            this.config.setBootStrappingPort(Integer.valueOf(getPropertyValue(properties, "NoSQL.Connection.port")));
             this.config.setNodeUrl(getPropertyValue(properties, "NoSQL.Connection.hostname"));
             this.config.setNodePort(Integer.valueOf(getPropertyValue(properties, "NoSQL.Connection.port")));
-//            this.config.setDatabase(getPropertyValue(properties, "NoSQL.Connection.database"));
+            this.config.setDatabase(getPropertyValue(properties, "NoSQL.Connection.database"));
             this.config.setUser(getPropertyValue(properties, "NoSQL.Connection.username"));
             this.config.setPassword(getPropertyValue(properties, "NoSQL.Connection.password"));
             if (getPropertyValue(properties, "NoSQL.Connection.create").equalsIgnoreCase("true"))
@@ -77,19 +77,19 @@ public class NoSQLDatabaseConnection {
         }
     }
 
-    public QueryResponse execute(QueryRequest query) {
+    public JSONObject execute(JSONObject query) {
 //        QueryType queryType = QueryType.valueOf((String) query.get("commandType"));
-//        try {
-////            System.out.println(query);
-//            ServerClientCommunicator.sendJson(nodeSocket, query);
-//            JSONObject messageFromServer = ServerClientCommunicator.readJson(nodeSocket);
-//            System.out.println(messageFromServer);
-//            return messageFromServer;
-////            return  handleResponse(messageFromServer, query);
-//        } catch (Exception e) {
-//            throw new RuntimeException(e);
-//        }
-        return null;
+        try {
+            System.out.println(query);
+            ServerClientCommunicator.sendJson(nodeSocket, query);
+            JSONObject messageFromServer = ServerClientCommunicator.readJson(nodeSocket);
+            System.out.println(messageFromServer);
+            return messageFromServer;
+//            return  handleResponse(messageFromServer, query);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+//        return null;
     }
 
     private void login() {
@@ -100,7 +100,8 @@ public class NoSQLDatabaseConnection {
             jsonObject.put("password", config.getPassword());
             ServerClientCommunicator.sendJson(nodeSocket, jsonObject);
             JSONObject messageFromServer = ServerClientCommunicator.readJson(nodeSocket);
-            if(((Long) messageFromServer.get("code_number")) == 1){
+            System.out.println(messageFromServer);
+            if(((int) messageFromServer.get("code_number")) == 1) {
                 throw new RuntimeException((String) messageFromServer.get("error_message"));
             }
         } catch (Exception e) {
@@ -123,7 +124,7 @@ public class NoSQLDatabaseConnection {
                 throw new RuntimeException((String) messageFromServer.get("error_message"));
             }
             config.setNodePort((Integer) messageFromServer.get("tcpPort"));
-        } catch (IOException | ParseException | ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
@@ -173,10 +174,10 @@ public class NoSQLDatabaseConnection {
     }
 
     public JSONObject pingServer() throws IOException, ParseException, ClassNotFoundException {
-        JSONObject jsonObject=new JSONObject();
+        JSONObject jsonObject = new JSONObject();
         jsonObject.put("commandType", QueryType.PING.toString());
-        return null;
-//        return execute(jsonObject);
+//        return null;
+        return execute(jsonObject);
     }
 
     public QueryManager getQueryManager(){

@@ -17,7 +17,7 @@ public class DeleteDocumentQuery extends Query {
             String collectionName=CommandUtils.getCollectionName(commandJson);
             String documentId=CommandUtils.getDocumentId(commandJson);
             Collection collection=CommandUtils.getCollection(commandJson);
-            if(collection.hasAffinity()==false&&!CommandUtils.isSync(commandJson)){
+            if(collection.hasAffinity()==false && !CommandUtils.isSync(commandJson)){
                 redirectToNodeWithAffinity(collection,commandJson);
                 return new JSONArray();
             }

@@ -1,6 +1,7 @@
 package com.db.repository;
 
 import com.db.connection.NoSQLDatabaseConnection;
+import com.db.json.JsonBuilder;
 import com.db.model.query.QueryType;
 import com.db.model.request.QueryRequest;
 import com.db.model.response.QueryResponse;
@@ -29,7 +30,7 @@ public class CRUDNoSQLRepository<Entity, ID> implements NoSQLRepository<Entity, 
 
     private void init() {
         if (configRepository.createDatabase()) {
-            if (configRepository.createCollection(entityType.getSimpleName(), new JSONObject(JSONUtil.generateJsonSchema(entityType)))) {
+            if (configRepository.createCollection(entityType.getSimpleName(), JSONUtil.generateJsonSchema(entityType))) {
                 return;
             }
         }
@@ -37,54 +38,81 @@ public class CRUDNoSQLRepository<Entity, ID> implements NoSQLRepository<Entity, 
     }
 
     @Override
-    public Entity createDocument(Entity entity) {
-        QueryResponse response = connection.execute(
-                QueryRequest.builder()
-                        .query(QueryType.CREATE_DOCUMENT)
-                        .database(connection.getConfig().getDatabase())
-                        .collection(entityType.getSimpleName())
-                        .body(new JSONObject(entity).toMap())
+    public boolean createDocument(Entity entity) {
+        JSONObject response = connection.execute(
+                JsonBuilder.getBuilder()
+                        .add("commandType", QueryType.CREATE_DOCUMENT.toString())
+                        .add("databaseName", connection.getConfig().getDatabase())
+                        .add("collectionName", entityType.getSimpleName())
+                        .add("document", new JSONObject(entity))
                         .build()
         );
-        return JSONUtil.parseObject(new JSONObject(response.getJsonObject()), entityType);
+        return ((int) response.get("code_number")) == 0;
     }
 
     @Override
-    public boolean createIndex(String index) {
-        QueryResponse response = connection.execute(
-                QueryRequest.builder()
-                        .query(QueryType.CREATE_INDEX)
-                        .database(connection.getConfig().getDatabase())
-                        .collection(entityType.getSimpleName())
-                        .body((new JSONObject().put("indexedBy", index)).toMap())
+    public boolean createIndex(JSONObject indexProperty) {
+        JSONObject response = connection.execute(
+                JsonBuilder.getBuilder()
+                        .add("commandType", QueryType.CREATE_INDEX.toString())
+                        .add("databaseName", connection.getConfig().getDatabase())
+                        .add("collectionName", entityType.getSimpleName())
+                        .add("indexProperty", indexProperty)
                         .build()
         );
-        return response.getStatus() == 0;
+        return ((int) response.get("code_number")) == 0;
     }
 
     @Override
     public Entity getDocumentByID(ID id) {
-        QueryResponse response = connection.execute(
-                QueryRequest.builder()
-                        .query(QueryType.FIND)
-                        .database(connection.getConfig().getDatabase())
-                        .collection(entityType.getSimpleName())
-                        .body((new JSONObject().put("id", id)).toMap())
+        JSONObject response = connection.execute(
+                JsonBuilder.getBuilder()
+                        .add("commandType", QueryType.FIND.toString())
+                        .add("databaseName", connection.getConfig().getDatabase())
+                        .add("collectionName", entityType.getSimpleName())
+                        .add("searchObject", new JSONObject().put("id", id))
                         .build()
         );
-        return JSONUtil.parseObject(new JSONObject(response.getJsonObject()), entityType);
+        return JSONUtil.parseObject(response, entityType);
     }
 
     @Override
     public List<Entity> getAllDocuments() {
-        QueryResponse response = connection.execute(
-                QueryRequest.builder()
-                        .query(QueryType.FIND_ALL)
-                        .database(connection.getConfig().getDatabase())
-                        .collection(entityType.getSimpleName())
+        JSONObject response = connection.execute(
+                JsonBuilder.getBuilder()
+                        .add("commandType", QueryType.FIND_ALL.toString())
+                        .add("databaseName", connection.getConfig().getDatabase())
+                        .add("collectionName", entityType.getSimpleName())
                         .build()
         );
-        return JSONUtil.parseJsonToList(new JSONObject(response.getJsonObject()).toString(), entityType);
+        return JSONUtil.parseJsonToList(response, entityType);
+    }
+
+    @Override
+    public boolean deleteDocumentById(ID id) {
+        JSONObject response = connection.execute(
+                JsonBuilder.getBuilder()
+                        .add("commandType", QueryType.DELETE_DOCUMENT.toString())
+                        .add("databaseName", connection.getConfig().getDatabase())
+                        .add("collectionName", entityType.getSimpleName())
+                        .add("documentId", id)
+                        .build()
+        );
+        return ((int) response.get("code_number")) == 0;
+    }
+
+    @Override
+    public Entity updateDocument(ID id, JSONObject updatedProperty) {
+        JSONObject response = connection.execute(
+                JsonBuilder.getBuilder()
+                        .add("commandType", QueryType.UPDATE_DOCUMENT.toString())
+                        .add("databaseName", connection.getConfig().getDatabase())
+                        .add("collectionName", entityType.getSimpleName())
+                        .add("documentId", id)
+                        .add("data", updatedProperty)
+                        .build()
+        );
+        return JSONUtil.parseObject(response, entityType);
     }
 
 //    @Override
@@ -103,19 +131,6 @@ public class CRUDNoSQLRepository<Entity, ID> implements NoSQLRepository<Entity, 
 //        return JSONUtil.parseJsonToList(new JSONObject(response.getJsonObject()).toString(), entityType);
 //    }
 
-    @Override
-    public Entity updateDocument(Entity entity) {
-        QueryResponse response = connection.execute(
-                QueryRequest.builder()
-                        .query(QueryType.UPDATE_DOCUMENT)
-                        .database(connection.getConfig().getDatabase())
-                        .collection(entityType.getSimpleName())
-                        .body(new JSONObject(entity).toMap())
-                        .build()
-        );
-        return JSONUtil.parseObject(new JSONObject(response.getJsonObject()), entityType);
-    }
-
 //    @Override
 //    public boolean deleteIndex(String index) {
 //        QueryResponse response = connection.execute(
@@ -129,16 +144,5 @@ public class CRUDNoSQLRepository<Entity, ID> implements NoSQLRepository<Entity, 
 //        return response.getStatus() == 200;
 //    }
 
-    @Override
-    public boolean deleteDocumentById(ID id) {
-        QueryResponse response = connection.execute(
-                QueryRequest.builder()
-                        .query(QueryType.DELETE_DOCUMENT)
-                        .database(connection.getConfig().getDatabase())
-                        .collection(entityType.getSimpleName())
-                        .body((new JSONObject().put("id", id)).toMap())
-                        .build()
-        );
-        return response.getStatus() == 200;
-    }
+
 }

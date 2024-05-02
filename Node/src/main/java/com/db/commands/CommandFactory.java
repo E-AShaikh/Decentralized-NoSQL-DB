@@ -34,10 +34,10 @@ public class CommandFactory {
         commandsMap.put(CommandTypes.UPDATE_DOCUMENT,new UpdateDocumentQuery());
         commandsMap.put(CommandTypes.PING,new PingQuery());
         //UPD COMMANDS
-        commandsMap.put(CommandTypes.ADD_USER,new AddUserAction());
-        commandsMap.put(CommandTypes.INITIALIZE,new InitializeAction());
-        commandsMap.put(CommandTypes.REDIRECT,new RedirectAction());
-        commandsMap.put(CommandTypes.SYNC,new SyncAction());
+        commandsMap.put(CommandTypes.ADD_USER, new AddUserAction());
+        commandsMap.put(CommandTypes.INITIALIZE, new InitializeAction());
+        commandsMap.put(CommandTypes.REDIRECT, new RedirectAction());
+        commandsMap.put(CommandTypes.SYNC, new SyncAction());
     }
     public Command createCommand(CommandTypes commandType){
         return commandsMap.get(commandType);

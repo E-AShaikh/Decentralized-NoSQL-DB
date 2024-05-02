@@ -9,7 +9,7 @@ public class SyncAction extends Action{
     @Override
     public JSONArray execute(JSONObject commandJson) {
         JSONObject syncCommandJson= (JSONObject) commandJson.get("command");
-        syncCommandJson.put("sync",true);
+        syncCommandJson.put("sync", true);
         CommandsMediator.getInstance().execute(syncCommandJson);
         return new JSONArray();
     }

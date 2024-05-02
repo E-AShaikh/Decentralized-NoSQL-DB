@@ -27,7 +27,7 @@ public class UpdateDocumentQuery extends Query {
                 data.put("_version",version);
                 commandJson.put("data",data);
                 redirectToNodeWithAffinity(collection,commandJson);
-            }else{
+            } else {
                 updateIfHasAffinity(commandJson, databaseName, collectionName, data, document, collection);
                 commandJson.put("commandType", CommandTypes.SYNC_UPDATE_DOCUMENT.toString());
                 UDPCommunicator.broadcastCommand(commandJson);

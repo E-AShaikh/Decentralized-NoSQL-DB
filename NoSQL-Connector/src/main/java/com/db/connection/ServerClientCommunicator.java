@@ -1,15 +1,12 @@
 package com.db.connection;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.*;
 import java.net.Socket;
 
 public class ServerClientCommunicator {
-
 
     public static String readString(Socket socket) throws IOException {
         return getBufferReader(socket).readLine();
@@ -38,22 +35,19 @@ public class ServerClientCommunicator {
         printWriter.flush();
     }
     public static void sendJson(Socket socket, JSONObject jsonObject) throws IOException {
-        sendMessage(socket,jsonObject.toJSONString());
+        sendMessage(socket, jsonObject.toString());
     }
     public static void sendJsonArray(Socket socket, JSONArray jsonArray) throws IOException {
-        sendMessage(socket,jsonArray.toJSONString());
+        sendMessage(socket, jsonArray.toString());
     }
-    public static JSONArray readJsonArray(Socket socket) throws IOException, ClassNotFoundException, ParseException {
-        String jsonString=(String) readString(socket);
-        JSONParser jsonParser=new JSONParser();
-        JSONArray jsonArray= (JSONArray) jsonParser.parse(jsonString);
+    public static JSONArray readJsonArray(Socket socket) throws IOException, ClassNotFoundException {
+        String jsonString = (String) readString(socket);
+        JSONArray jsonArray= new JSONArray(jsonString);
         return jsonArray;
-
     }
-    public static JSONObject readJson(Socket socket) throws IOException, ClassNotFoundException, ParseException {
-        String jsonString=(String) readString(socket);
-        JSONParser jsonParser=new JSONParser();
-        JSONObject json= (JSONObject) jsonParser.parse(jsonString);
+    public static JSONObject readJson(Socket socket) throws IOException, ClassNotFoundException {
+        String jsonString = (String) readString(socket);
+        JSONObject json = new JSONObject(jsonString);
         return json;
     }
     private static BufferedReader getBufferReader(Socket socket) throws IOException {

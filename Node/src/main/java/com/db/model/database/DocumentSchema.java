@@ -15,22 +15,23 @@ public class DocumentSchema {
     public void verify(JSONObject jsonObject){
         verifyDocumentJson(jsonObject, schema);
     }
-    private void verifyDocumentJson(JSONObject jsonObject,JSONObject documentSchema){
+    private void verifyDocumentJson(JSONObject jsonObject, JSONObject documentSchema){
         for (Object key : documentSchema.keySet()) {
             if(!jsonObject.containsKey(key)){
                 throw new IllegalArgumentException();
             }
-            Object documentJsonValue=documentSchema.get(key);
-            Object jsonObjectValue=jsonObject.get(key);
-            if(documentJsonValue.getClass()==JSONObject.class){
-                verifyDocumentJson((JSONObject) jsonObjectValue,(JSONObject)documentJsonValue);
+            Object documentJsonValue = documentSchema.get(key);
+            Object jsonObjectValue = jsonObject.get(key);
+
+            if(documentJsonValue.getClass() == JSONObject.class) {
+                verifyDocumentJson((JSONObject) jsonObjectValue, (JSONObject)documentJsonValue);
                 continue;
             }
-            if(documentJsonValue.getClass()== JSONArray.class|| documentJsonValue.getClass()==ArrayList.class){
-                verifyDocumentJsonList((List<Object>)jsonObjectValue,(List<Object>)documentJsonValue);
+            if(documentJsonValue.getClass() == JSONArray.class || documentJsonValue.getClass() == ArrayList.class){
+                verifyDocumentJsonList((List<Object>) jsonObjectValue, (List<Object>) documentJsonValue);
                 continue;
             }
-            verifyValueType(jsonObjectValue,documentJsonValue);
+            verifyValueType(jsonObjectValue, documentJsonValue);
         }
     }
     private void verifyDocumentJsonList(List<Object> jsonList,List<Object>documentList){
@@ -38,12 +39,13 @@ public class DocumentSchema {
             verifyDocumentJson((JSONObject) jsonObject,(JSONObject) documentList.get(0));
         }
     }
-    private void verifyValueType(Object jsonObjectValue,Object documentJsonValue){
-        String dataType=(String) documentJsonValue;
+    private void verifyValueType(Object jsonObjectValue, Object documentJsonValue){
+        String dataType = (String) documentJsonValue;
         if(!Objects.equals(dataType.toLowerCase(), jsonObjectValue.getClass().getSimpleName().toLowerCase())){
             throw new IllegalArgumentException();
         }
     }
+
     //verify that the schema follow the defined types
     public static void verifyJsonTypes(JSONObject documentSchema){
         for (Object value : documentSchema.values()) {

@@ -14,19 +14,33 @@ import java.util.List;
 public class JSONUtil {
     private static final ObjectMapper mapper = new ObjectMapper();
 
-    public static String generateJsonSchema(Class<?> classToInspect) {
-        try {
-            mapper.setVisibility(mapper.getSerializationConfig()
-                    .getDefaultVisibilityChecker()
-                    .withFieldVisibility(JsonAutoDetect.Visibility.ANY));
+    public static JSONObject generateJsonSchema(Class<?> classToInspect) {
+//        try {
+//            mapper.setVisibility(mapper.getSerializationConfig()
+//                    .getDefaultVisibilityChecker()
+//                    .withFieldVisibility(JsonAutoDetect.Visibility.ANY));
+//
+//            JsonSchemaGenerator schemaGen = new JsonSchemaGenerator(mapper);
+//            JsonSchema schema = schemaGen.generateSchema(classToInspect);
+//
+//            JSONObject castedSchema = new JSONObject(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(schema));
+////            for (Object obj: (JSONObject) castedSchema.get("properties"))
+//            return (JSONObject) castedSchema.get("properties");
+//        } catch (JsonProcessingException e) {
+//            throw new RuntimeException(e);
+//        }
+        Field[] fields = classToInspect.getDeclaredFields();
 
-            JsonSchemaGenerator schemaGen = new JsonSchemaGenerator(mapper);
-            JsonSchema schema = schemaGen.generateSchema(classToInspect);
-
-            return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(schema);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+        JSONObject schema = new JSONObject();
+        for (Field field : fields) {
+            try {
+                schema.put(field.getName(), DataType.valueOf(field.getType().getSimpleName().toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                schema.put(field.getName(), "STRING");
+            }
         }
+
+        return schema;
     }
 
     public static <T> T parseObject(JSONObject content, Class<T> valueType) {
@@ -41,8 +55,8 @@ public class JSONUtil {
         }
     }
 
-    public static <T> List<T> parseJsonToList(String jsonString, Class<T> clazz) {
-        JSONObject response = new JSONObject(jsonString);
+    public static <T> List<T> parseJsonToList(JSONObject response, Class<T> clazz) {
+//        JSONObject response = new JSONObject(jsonString);
         List<T> objects = new ArrayList<>();
 
         for (String key : response.keySet()) {
@@ -71,4 +85,5 @@ public class JSONUtil {
         }
         return instance;
     }
+
 }

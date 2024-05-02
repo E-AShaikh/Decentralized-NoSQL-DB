@@ -24,7 +24,7 @@ public class TCPServerConnection implements Runnable {
     boolean isRunning;
     public TCPServerConnection(Socket socket) throws IOException {
         this.socket = socket;
-        isRunning=true;
+        isRunning = true;
     }
     @Override
     public void run() {
@@ -39,37 +39,37 @@ public class TCPServerConnection implements Runnable {
         try {
             JSONObject clientMessage;
             while(isRunning) {
-                JSONObject commandJson= TCPCommunicator.readJson(socket);
-                System.out.println("received :-"+ commandJson);
+                JSONObject commandJson = TCPCommunicator.readJson(socket);
+                System.out.println("received :-" + commandJson);
                 System.out.println("--------------------------------------------");
                 clientMessage = handleCommand(commandJson);
-                System.out.println("client message"+ clientMessage);
+                System.out.println("client message" + clientMessage);
                 TCPCommunicator.sendJson(socket,clientMessage);
             }
         } catch (ConnectionTerminatedException e){
             socket.close();
         } catch (Exception e) {
-            System.out.println("socket closed at port "+socket.getPort());
+            System.out.println("socket closed at port "+ socket.getPort());
         }
     }
 
     private JSONObject handleCommand(JSONObject commandJson)  {
         JSONObject clientMessage = new JSONObject();
-        clientMessage.put("code_number",0);
+        clientMessage.put("code_number", 0);
 
         try {
-            if(!RequestLoad.getInstance().addRequest()){
-                broadcastUser();
-                isRunning = false;
-                clientMessage = redirectMessage();
-            } else {
-                commandJson.put("sync",false);
-                JSONArray data = CommandsMediator.getInstance().execute(commandJson);
-                clientMessage.put("data",data);
-            }
-            commandJson.put("sync",false);
+//            if(!RequestLoad.getInstance().addRequest()){
+//                broadcastUser();
+//                isRunning = false;
+//                clientMessage = redirectMessage();
+//            } else {
+//                commandJson.put("sync", false);
+//                JSONArray data = CommandsMediator.getInstance().execute(commandJson);
+//                clientMessage.put("data", data);
+//            }
+            commandJson.put("sync", false);
             JSONArray data = CommandsMediator.getInstance().execute(commandJson);
-            clientMessage.put("data",data);
+            clientMessage.put("data", data);
         } catch (Exception e) {
             clientMessage.put("code_number",1);
             clientMessage.put("error_message", e.getMessage());
@@ -78,7 +78,7 @@ public class TCPServerConnection implements Runnable {
     }
 
     private void getAuthenticatedUser() throws IOException {
-        JSONObject clientMessage=new JSONObject();
+        JSONObject clientMessage = new JSONObject();
         try{
             authenticate(clientMessage);
         }catch (ConnectionTerminatedException e){
@@ -91,20 +91,21 @@ public class TCPServerConnection implements Runnable {
 
     private void authenticate(JSONObject clientMessage) throws IOException, ParseException, ConnectionTerminatedException {
         while(true){
-            JSONObject userJson= TCPCommunicator.readJson(socket);
-            String username=(String) userJson.get("username");
-            String password=(String) userJson.get("password");
+            JSONObject userJson = TCPCommunicator.readJson(socket);
+            String username = (String) userJson.get("username");
+            String password = (String) userJson.get("password");
             Optional<User> user = AuthenticationManager.getInstance().authenticate(username, password);
             if(user.isPresent()){
                 authenticatedUser=user.get();
                 clientMessage.put("code_number",0);
                 TCPCommunicator.sendJson(socket, clientMessage);
                 break;
-            }else{
+            } else {
                 clientMessage.put("code_number",1);
-                clientMessage.put("error_message","Invalid credentials");
+                clientMessage.put("error_message", "Invalid credentials");
                 TCPCommunicator.sendJson(socket, clientMessage);
             }
+            System.out.println(clientMessage);
         }
     }
 

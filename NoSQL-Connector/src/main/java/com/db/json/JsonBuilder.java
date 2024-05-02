@@ -1,14 +1,14 @@
 package com.db.json;
 
-import org.json.simple.JSONObject;
+import org.json.JSONObject;
 
 public class JsonBuilder {
     private JSONObject jsonObject;
-    private JsonBuilder(){
-        jsonObject=new JSONObject();
+    private JsonBuilder() {
+        jsonObject = new JSONObject();
     }
 
-    public JsonBuilder add(String key,Object value){
+    public JsonBuilder add(String key, Object value){
         jsonObject.put(key,value);
         return this;
     }
@@ -16,7 +16,7 @@ public class JsonBuilder {
         return jsonObject;
     }
     public static JsonBuilder getBuilder(){
-        JsonBuilder jsonBuilder=new JsonBuilder();
+        JsonBuilder jsonBuilder = new JsonBuilder();
         return jsonBuilder;
     }
 }

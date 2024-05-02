@@ -18,7 +18,7 @@ public class BankAccountController {
         return bankAccountService.getAllAccounts();
     }
     @PostMapping("/addAccount")
-    public BankAccount addEmail(@RequestBody BankAccount account){
+    public boolean addEmail(@RequestBody BankAccount account){
         return bankAccountService.addAccount(account);
     }
 }

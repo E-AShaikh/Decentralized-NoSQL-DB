@@ -1,13 +1,14 @@
 package com.db.repository;
 
 import com.db.model.query.UpdateDocumentQuery;
+import org.json.JSONObject;
 
 import java.util.List;
 
 public interface NoSQLRepository<Entity, ID> {
-    Entity createDocument(Entity entity);
+    boolean createDocument(Entity entity);
 
-    boolean createIndex(String index);
+    boolean createIndex(JSONObject indexProperty);
 
     Entity getDocumentByID(ID id);
 
@@ -15,7 +16,7 @@ public interface NoSQLRepository<Entity, ID> {
 
 //    List<Entity> getAllDocumentsByProperty(String property, String value);
 
-    Entity updateDocument(Entity entity);
+    Entity updateDocument(ID id, JSONObject updatedProperty);
 
 //    boolean deleteIndex(String index);
 

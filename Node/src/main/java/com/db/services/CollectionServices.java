@@ -11,7 +11,7 @@ public class CollectionServices {
         database.getCollectionLock().lock();
         try{
             DocumentSchema.verifyJsonTypes(schema);
-            FileStorageUtil.createCollection(databaseName,collectionName,schema);
+            FileStorageUtil.createCollection(databaseName, collectionName, schema);
             database.createCollection(collectionName);
         }catch (Exception e){
             database.getCollectionLock().unlock();

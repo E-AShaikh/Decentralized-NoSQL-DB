@@ -17,9 +17,9 @@ public class CreateCollectionQuery extends Query {
             Database database = CommandUtils.getDatabase(commandJson);
             JSONObject schema = CommandUtils.getSchemaJson(commandJson);
             CollectionServices collectionServices = new CollectionServices();
-            collectionServices.createCollection(databaseName,collectionName,schema,database);
-            if(!CommandUtils.isSync(commandJson))
-                UDPCommunicator.broadcastSyncCommand(commandJson);
+            collectionServices.createCollection(databaseName, collectionName, schema, database);
+//            if(!CommandUtils.isSync(commandJson))
+//                UDPCommunicator.broadcastSyncCommand(commandJson);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

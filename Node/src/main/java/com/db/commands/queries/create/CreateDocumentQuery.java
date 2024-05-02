@@ -19,8 +19,8 @@ public class CreateDocumentQuery extends Query {
             String collectionName = CommandUtils.getCollectionName(commandJson);
             JSONObject document = CommandUtils.getDocumentJson(commandJson);
             Collection collection = CommandUtils.getCollection(commandJson);
-//            if(collection.hasAffinity()==false&&!CommandUtils.isSync(commandJson)){
-//                redirectToNodeWithAffinity(collection,commandJson);
+//            if(collection.hasAffinity() == false && !CommandUtils.isSync(commandJson)){
+//                redirectToNodeWithAffinity(collection, commandJson);
 //                return new JSONArray();
 //            }
             UUID uuid = UUID.randomUUID();
@@ -28,11 +28,11 @@ public class CreateDocumentQuery extends Query {
                 document.put("id",uuid.toString());
             }
             document.put("_version",0);
-            commandJson.put("document",document);
-            DocumentServices documentServices=new DocumentServices();
-            documentServices.createDocument(document,collection,databaseName,collectionName);
-            if(!CommandUtils.isSync(commandJson))
-                UDPCommunicator.broadcastSyncCommand(commandJson);
+            commandJson.put("document", document);
+            DocumentServices documentServices = new DocumentServices();
+            documentServices.createDocument(document, collection , databaseName , collectionName);
+//            if(!CommandUtils.isSync(commandJson))
+//                UDPCommunicator.broadcastSyncCommand(commandJson);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

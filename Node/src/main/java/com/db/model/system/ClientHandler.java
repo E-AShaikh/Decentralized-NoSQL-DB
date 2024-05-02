@@ -14,7 +14,7 @@ public class ClientHandler implements Runnable {
             new Thread(new TCPListener()).start();
             new Thread(new UDPListener()).start();
             Thread.sleep(1000);
-            sendInitializeMessage();
+//            sendInitializeMessage();
         }catch (Exception e){
             new RuntimeException(e);
         }

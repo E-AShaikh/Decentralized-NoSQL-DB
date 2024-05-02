@@ -9,16 +9,16 @@ public class JsonArrayBuilder {
     private JSONArray jsonArray;
     private JSONParser jsonParser;
     private JsonArrayBuilder(){
-        jsonArray=new JSONArray();
-        jsonParser=new JSONParser();
+        jsonArray = new JSONArray();
+        jsonParser = new JSONParser();
     }
 
-    public JsonArrayBuilder add(JSONObject jsonObject){
+    public JsonArrayBuilder add(JSONObject jsonObject) {
         jsonArray.add(jsonObject);
         return this;
     }
     public JsonArrayBuilder add(String jsonString) throws ParseException {
-        jsonArray.add((JSONObject)jsonParser.parse(jsonString));
+        jsonArray.add((JSONObject) jsonParser.parse(jsonString));
         return this;
     }
     public JSONArray build(){

@@ -22,8 +22,8 @@ public class CreateIndexQuery extends Query {
             IndexServices indexServices=new IndexServices();
             indexServices.createIndex(indexPropertyObject,database,collection,databaseName,collectionName);
 
-            if(!CommandUtils.isSync(commandJson))
-                UDPCommunicator.broadcastSyncCommand(commandJson);
+//            if(!CommandUtils.isSync(commandJson))
+//                UDPCommunicator.broadcastSyncCommand(commandJson);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

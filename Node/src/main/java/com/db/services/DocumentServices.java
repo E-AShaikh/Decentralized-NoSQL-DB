@@ -14,10 +14,10 @@ public class DocumentServices {
     public static void createDocument(JSONObject document, Collection collection,String databaseName,String collectionName) throws IOException, ParseException {
         collection.getDocumentLock().lock();
         try{
-            DocumentSchema documentSchema= FileStorageUtil.getSchema(databaseName,collectionName);
-            documentSchema.verify(document);
-            JSONObject indexObject= FileStorageUtil.createDocument(databaseName,collectionName,document);//write it to disk and retrieve the object that contains the location of this document on disk
-            collection.addDocumentToIndexes(document,indexObject);//add this document to all indexes
+            DocumentSchema documentSchema = FileStorageUtil.getSchema(databaseName, collectionName);
+//            documentSchema.verify(document);
+            JSONObject indexObject = FileStorageUtil.createDocument(databaseName,collectionName,document);//write it to disk and retrieve the object that contains the location of this document on disk
+            collection.addDocumentToIndexes(document, indexObject);//add this document to all indexes
         }catch (Exception e) {
             collection.getDocumentLock().unlock();
             throw new RuntimeException(e);
