@@ -1,16 +1,11 @@
 package com.db.connection;
 
 import com.db.model.connection.NoSQLConfig;
-import com.db.model.query.QueryType;
 import com.db.model.request.BootstrapperRequests;
-import com.db.model.request.QueryRequest;
-import com.db.model.response.QueryResponse;
 import lombok.Data;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import org.json.simple.JSONArray;
 import org.json.JSONObject;
-import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,8 +19,7 @@ import java.util.Properties;
 public class NoSQLDatabaseConnection {
 
     private Socket nodeSocket;
-    private Socket bootstrappingSocket;
-    private QueryManager queryManager;
+    private Socket bootsrapperSocket;
     private final NoSQLConfig config = new NoSQLConfig();
     private static volatile NoSQLDatabaseConnection instance;
     private static final Object lock = new Object();
@@ -51,25 +45,24 @@ public class NoSQLDatabaseConnection {
                 throw new IOException("Unable to find db.properties");
             }
             properties.load(input);
-//            this.config.setBootStrappingNodeUrl(getPropertyValue(properties, "NoSQL.Connection.url"));
-//            this.config.setBootStrappingPort(Integer.valueOf(getPropertyValue(properties, "NoSQL.Connection.port")));
-            this.config.setNodeUrl(getPropertyValue(properties, "NoSQL.Connection.hostname"));
-            this.config.setNodePort(Integer.valueOf(getPropertyValue(properties, "NoSQL.Connection.port")));
+            this.config.setHostname(getPropertyValue(properties, "NoSQL.Connection.hostname"));
+            this.config.setPort(Integer.valueOf(getPropertyValue(properties, "NoSQL.Connection.port")));
             this.config.setDatabase(getPropertyValue(properties, "NoSQL.Connection.database"));
             this.config.setUser(getPropertyValue(properties, "NoSQL.Connection.username"));
             this.config.setPassword(getPropertyValue(properties, "NoSQL.Connection.password"));
-            if (getPropertyValue(properties, "NoSQL.Connection.create").equalsIgnoreCase("true"))
+            this.config.setCreated(getPropertyValue(properties, "NoSQL.Connection.created").equalsIgnoreCase("true"));
+            if (getPropertyValue(properties, "NoSQL.Connection.register").equalsIgnoreCase("true"))
                 register();
-            else
-                login();
+
+            login();
         } catch (IOException ex) {
             log.error(ex.getMessage());
         }
     }
 
-    private Socket connect(String hostURL, int port) {
-        try{
-            return new Socket(hostURL, port);
+    private Socket connect(String hostname, int port) {
+        try {
+            return new Socket(hostname, port);
         } catch (UnknownHostException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {
@@ -78,22 +71,19 @@ public class NoSQLDatabaseConnection {
     }
 
     public JSONObject execute(JSONObject query) {
-//        QueryType queryType = QueryType.valueOf((String) query.get("commandType"));
         try {
             System.out.println(query);
             ServerClientCommunicator.sendJson(nodeSocket, query);
             JSONObject messageFromServer = ServerClientCommunicator.readJson(nodeSocket);
             System.out.println(messageFromServer);
             return messageFromServer;
-//            return  handleResponse(messageFromServer, query);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-//        return null;
     }
 
     private void login() {
-        this.nodeSocket = connect(config.getNodeUrl(), config.getNodePort());
+        this.nodeSocket = connect(config.getHostname(), config.getPort());
         try {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("username", config.getUser());
@@ -109,24 +99,27 @@ public class NoSQLDatabaseConnection {
         }
     }
     private void register() {
-        this.bootstrappingSocket = connect(config.getBootStrappingNodeUrl(), config.getBootStrappingPort());
+        this.bootsrapperSocket = connect(config.getHostname(), config.getPort());
         try {
             JSONObject request = new JSONObject();
-            request.put("username", config.getUser());
+            request.put("username", config.getPassword());
             request.put("password", config.getPassword());
             request.put("requestType", BootstrapperRequests.REGISTER.toString());
 
-            ServerClientCommunicator.sendJson(bootstrappingSocket, request);
+            ServerClientCommunicator.sendJson(bootsrapperSocket, request);
 
-            JSONObject messageFromServer = ServerClientCommunicator.readJson(bootstrappingSocket);
+            JSONObject messageFromServer = ServerClientCommunicator.readJson(bootsrapperSocket);
 
-            if(((Long)messageFromServer.get("code_number")) == 1){
+            if(((Long)messageFromServer.get("code_number"))==1){
                 throw new RuntimeException((String) messageFromServer.get("error_message"));
             }
-            config.setNodePort((Integer) messageFromServer.get("tcpPort"));
-        } catch (IOException | ClassNotFoundException e) {
+            config.setPort ((int) messageFromServer.get("tcpPort"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
+
     }
     private void logout() {
     }
@@ -142,46 +135,4 @@ public class NoSQLDatabaseConnection {
         return propertyValue;
     }
 
-    public JSONObject handleResponse(JSONObject messageFromServer,JSONObject query) throws IOException, ParseException, ClassNotFoundException {
-        if(((Long) messageFromServer.get("code_number")) == 1){
-            throw new RuntimeException((String) messageFromServer.get("error_message"));
-        }
-        if(((Long) messageFromServer.get("code_number")) == 2){
-            return redirect((JSONArray) messageFromServer.get("nodes"), query);
-        }
-        return messageFromServer;
-    }
-
-    public JSONObject redirect(JSONArray nodes, JSONObject query) throws IOException, ParseException, ClassNotFoundException {
-        for(int i=0; i<nodes.size(); i++) {
-            JSONObject nodeJsonObject = (JSONObject) nodes.get(i);
-            config.setNodePort((Integer) nodeJsonObject.get("tcpPort"));
-
-
-            login();
-
-            JSONObject messageFromServer = pingServer();
-            if(((Long) messageFromServer.get("code_number")) == 2){
-                continue; //server is over loaded
-            }
-            if(((Long) messageFromServer.get("code_number")) == 1){
-                throw new RuntimeException((String) messageFromServer.get("error_message"));
-            }
-            System.out.println("REDIRECTED TO NODE :"+ (i+1));
-//            return execute(query);
-        }
-        return null;
-    }
-
-    public JSONObject pingServer() throws IOException, ParseException, ClassNotFoundException {
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("commandType", QueryType.PING.toString());
-//        return null;
-        return execute(jsonObject);
-    }
-
-    public QueryManager getQueryManager(){
-        queryManager = new QueryManager();
-        return queryManager;
-    }
 }

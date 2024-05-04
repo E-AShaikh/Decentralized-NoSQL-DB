@@ -1,7 +1,7 @@
 package com.db.util;
 
 import com.db.exception.*;
-import com.db.index.IndexManager;
+import com.db.model.index.IndexManager;
 import com.db.model.database.Database;
 import com.db.model.database.Collection;
 import com.db.commands.CommandTypes;
@@ -19,8 +19,8 @@ public class CommandUtils {
     }
     public static Collection getCollection(JSONObject commandJson) throws DatabaseNotFoundException, CollectionNotFoundException {
         Database database = getDatabase(commandJson);
-        String collectionName=getCollectionName(commandJson);
-        Optional<Collection> collection=database.getCollection(collectionName);
+        String collectionName = getCollectionName(commandJson);
+        Optional<Collection> collection = database.getCollection(collectionName);
         return collection.orElseThrow(CollectionNotFoundException::new);
     }
     public static JSONObject getDocument(JSONObject commandJson) throws CollectionNotFoundException, IOException, ParseException, DocumentNotFoundException, DatabaseNotFoundException, DocumentIdNotFoundException {

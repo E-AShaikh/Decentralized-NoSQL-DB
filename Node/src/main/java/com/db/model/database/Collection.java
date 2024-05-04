@@ -1,26 +1,20 @@
 package com.db.model.database;
 
-import com.db.model.balance.AffinityDistributor;
-import com.db.model.system.ClusterManager;
 import com.db.util.JsonUtils;
-import com.db.index.Index;
+import com.db.model.index.Index;
 import org.json.simple.JSONObject;
 
 import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class Collection {
-    private Map<String , JSONObject>idIndex; //this json object should contain information about where the document is in the collection file
-    private Map<String, Index>indexes;
+    private Map<String , JSONObject> idIndex; // this json object should contain information about where the document is in the collection file
+    private Map<String, Index> indexes;
     private ReentrantLock documentLock;
-    private boolean hasAffinity;
-    private int nodeWithAffinity;
-    public Collection(){
-//        nodeWithAffinity = AffinityDistributor.getInstance().hasAffinity();
-//        hasAffinity = ClusterManager.getInstance().getNodeNumber() == nodeWithAffinity;
-        indexes=new HashMap<>();
-        idIndex=new HashMap<>();
-        documentLock=new ReentrantLock();
+    public Collection() {
+        indexes = new HashMap<>();
+        idIndex = new HashMap<>();
+        documentLock = new ReentrantLock();
     }
 
     public void addIndex(String property,Index index){
@@ -32,14 +26,14 @@ public class Collection {
     public ReentrantLock getDocumentLock(){
         return documentLock;
     }
-    public void addToIndex(String property,Object key,String id){
+    public void addToIndex(String property, Object key, String id){
         List<String> indexValue = (List<String>) indexes.get(property).getIndex().search((Comparable) key);
-        if(indexValue!=null){
+        if(indexValue != null) {
             indexValue.add(id);
-        }else{
-            List<String>valueList=new ArrayList<>();
+        } else {
+            List<String> valueList = new ArrayList<>();
             valueList.add(id);
-            indexes.get(property).getIndex().insert((Comparable) key,valueList);
+            indexes.get(property).getIndex().insert((Comparable) key, valueList);
         }
     }
     public Optional<JSONObject> getIndex(String id){
@@ -53,7 +47,7 @@ public class Collection {
         }
     }
     public Optional<List<String>> searchForIndex(String property,Object value){
-        Index index=indexes.get(property);
+        Index index = indexes.get(property);
         return Optional.ofNullable((List<String>) index.getIndex().search((Comparable) value));
     }
     public boolean hasIndex(String property){
@@ -69,9 +63,9 @@ public class Collection {
 
 
     private void removeFromAllIndexes(JSONObject document){
-        for(Index index:indexes.values()){
+        for(Index index : indexes.values()){
             JSONObject indexPropertyJson=index.getIndexPropertyObject();
-            Object value=JsonUtils.searchForValue(document,indexPropertyJson);
+            Object value = JsonUtils.searchForValue(document, indexPropertyJson);
             List<String>idsList= (List<String>) index.getIndex().search((Comparable) value);
             idsList.remove(document.get("id"));
             if(idsList.size()==0){
@@ -80,20 +74,5 @@ public class Collection {
         }
     }
 
-    public boolean hasAffinity() {
-        return hasAffinity;
-    }
-
-    public void setHasAffinity(boolean hasAffinity) {
-        this.hasAffinity = hasAffinity;
-    }
-
-    public int getNodeWithAffinity() {
-        return nodeWithAffinity;
-    }
-
-    public void setNodeWithAffinity(int nodeWithAffinity) {
-        this.nodeWithAffinity = nodeWithAffinity;
-    }
 }
 

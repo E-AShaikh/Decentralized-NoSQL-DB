@@ -1,6 +1,6 @@
 package com.db;
 
-import com.db.model.Bootstrapper;
+import com.db.system.Bootstrapper;
 import com.db.model.Config;
 
 /**
@@ -39,12 +39,12 @@ public class BootApp
         Config.getInstance().setTcpStartingRange(4000);
         Config.getInstance().setUdpStartingRange(5000);
         Config.getInstance().setBootstrapperUdpRange(6000);
-        Config.getInstance().setLoadBalanceTimeWindow(5);
-        Config.getInstance().setLoadBalanceMaxRequests(5);
-        Config.getInstance().setContainerNumbers(6);
+        Config.getInstance().setContainerNumbers(3);
         Config.getInstance().setBootstrapperTcpPort(8080);
-        Bootstrapper bootstrapper=new Bootstrapper();
+        Bootstrapper bootstrapper = new Bootstrapper();
         bootstrapper.run();
+
+
 
     }
 }

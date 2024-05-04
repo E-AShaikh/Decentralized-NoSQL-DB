@@ -9,11 +9,11 @@ import java.io.IOException;
 public class CollectionServices {
     public static void createCollection(String databaseName, String collectionName, JSONObject schema, Database database) throws IOException {
         database.getCollectionLock().lock();
-        try{
+        try {
             DocumentSchema.verifyJsonTypes(schema);
             FileStorageUtil.createCollection(databaseName, collectionName, schema);
             database.createCollection(collectionName);
-        }catch (Exception e){
+        } catch (Exception e){
             database.getCollectionLock().unlock();
             throw new RuntimeException(e);
         }
@@ -21,10 +21,10 @@ public class CollectionServices {
     }
     public static void deleteCollection(Database database,String databaseName,String collectionName) throws IOException, ClassNotFoundException {
         database.getCollectionLock().lock();
-        try{
-            FileStorageUtil.deleteCollection(databaseName,collectionName);//hard delete
-            database.deleteCollection(collectionName);//delete from the index structure
-        }catch (Exception e){
+        try {
+            FileStorageUtil.deleteCollection(databaseName,collectionName); // hard delete
+            database.deleteCollection(collectionName); // delete from the index structure
+        } catch (Exception e){
             database.getCollectionLock().unlock();
             throw new RuntimeException(e);
         }

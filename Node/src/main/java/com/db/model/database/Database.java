@@ -7,7 +7,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class Database {
     private Map<String, Collection> collections;
     private ReentrantLock collectionLock;
-    public Database(){
+    public Database() {
         collections=new HashMap<>();
         collectionLock=new ReentrantLock();
     }
@@ -15,8 +15,8 @@ public class Database {
         return collectionLock;
     }
     public Collection createCollection(String name){
-        Collection collection=new Collection();
-        collections.put(name,collection);
+        Collection collection = new Collection();
+        collections.put(name, collection);
         return collection;
     }
     public Optional<Collection> getCollection(String collectionName){

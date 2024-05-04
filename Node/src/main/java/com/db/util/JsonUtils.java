@@ -5,21 +5,21 @@ import org.json.simple.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 public class JsonUtils {
-    public static Object searchForValue(JSONObject searchObject,JSONObject referenceObject){
+    public static Object searchForValue(JSONObject searchObject, JSONObject referenceObject){
         for (Object key : referenceObject.keySet()) {
-            Object referenceObjectValue=searchObject.get(key);
-            Object searchObjectValue=searchObject.get(key);
-            if(referenceObjectValue.getClass()==JSONObject.class){
-                return searchForValue((JSONObject) searchObjectValue,(JSONObject)referenceObjectValue);
+            Object referenceObjectValue = referenceObject.get(key);
+            Object searchObjectValue = searchObject.get(key);
+            if(referenceObjectValue.getClass() == JSONObject.class){
+                return searchForValue((JSONObject) searchObjectValue, (JSONObject) referenceObjectValue);
             }
-            if(referenceObjectValue.getClass()== ArrayList.class||referenceObjectValue.getClass()== JSONArray.class){
-                return searchForListValue((List<Object>)searchObjectValue,(List<Object>)referenceObjectValue);
+            if(referenceObjectValue.getClass() == ArrayList.class || referenceObjectValue.getClass()== JSONArray.class){
+                return searchForListValue((List<Object>) searchObjectValue, (List<Object>) referenceObjectValue);
             }
             return searchObjectValue;
         }
         return null;
     }
-    private static Object searchForListValue(List<Object> searchObjectList,List<Object>schemaObjectList){
+    private static Object searchForListValue(List<Object> searchObjectList, List<Object> schemaObjectList){
         if(searchObjectList.size()!=1){
             throw  new IllegalArgumentException();
         }

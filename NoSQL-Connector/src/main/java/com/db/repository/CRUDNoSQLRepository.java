@@ -2,9 +2,8 @@ package com.db.repository;
 
 import com.db.connection.NoSQLDatabaseConnection;
 import com.db.json.JsonBuilder;
+import com.db.model.connection.NoSQLConfig;
 import com.db.model.query.QueryType;
-import com.db.model.request.QueryRequest;
-import com.db.model.response.QueryResponse;
 import com.db.util.JSONUtil;
 import org.json.JSONObject;
 
@@ -25,7 +24,7 @@ public class CRUDNoSQLRepository<Entity, ID> implements NoSQLRepository<Entity, 
         this.entityType = (Class<Entity>) type;
         this.connection = NoSQLDatabaseConnection.getInstance();
         this.configRepository = new SimpleConfigRepository(this.connection);
-        init();
+        if(!connection.getConfig().isCreated()) init();
     }
 
     private void init() {
@@ -35,6 +34,7 @@ public class CRUDNoSQLRepository<Entity, ID> implements NoSQLRepository<Entity, 
             }
         }
         throw new RuntimeException("NoSQLConnectionException");
+
     }
 
     @Override
@@ -73,7 +73,7 @@ public class CRUDNoSQLRepository<Entity, ID> implements NoSQLRepository<Entity, 
                         .add("searchObject", new JSONObject().put("id", id))
                         .build()
         );
-        return JSONUtil.parseObject(response, entityType);
+        return JSONUtil.parseJsonToList(response, entityType).get(0);
     }
 
     @Override
@@ -102,7 +102,7 @@ public class CRUDNoSQLRepository<Entity, ID> implements NoSQLRepository<Entity, 
     }
 
     @Override
-    public Entity updateDocument(ID id, JSONObject updatedProperty) {
+    public boolean updateDocument(ID id, JSONObject updatedProperty) {
         JSONObject response = connection.execute(
                 JsonBuilder.getBuilder()
                         .add("commandType", QueryType.UPDATE_DOCUMENT.toString())
@@ -112,37 +112,21 @@ public class CRUDNoSQLRepository<Entity, ID> implements NoSQLRepository<Entity, 
                         .add("data", updatedProperty)
                         .build()
         );
-        return JSONUtil.parseObject(response, entityType);
+        return ((int) response.get("code_number")) == 0;
     }
 
-//    @Override
-//    public List<Entity> getAllDocumentsByProperty(String property, String value) {
-//        QueryResponse response = connection.execute(
-//                QueryRequest.builder()
-//                        .query(QueryType.READ_DOCUMENT_BY_PROPERTY)
-//                        .database(connection.getConfig().getDatabase())
-//                        .collection(entityType.getSimpleName())
-//                        .body((new JSONObject()
-//                                .put("property", property)
-//                                .put("value", value)
-//                        ).toMap())
-//                        .build()
-//        );
-//        return JSONUtil.parseJsonToList(new JSONObject(response.getJsonObject()).toString(), entityType);
-//    }
-
-//    @Override
-//    public boolean deleteIndex(String index) {
-//        QueryResponse response = connection.execute(
-//                QueryRequest.builder()
-//                    .query(QueryType.DELETE_INDEX)
-//                        .database(connection.getConfig().getDatabase())
-//                        .collection(entityType.getSimpleName())
-//                        .body((new JSONObject().put("index", index)).toMap())
-//                        .build()
-//        );
-//        return response.getStatus() == 200;
-//    }
+    @Override
+    public List<Entity> getAllDocumentsByProperty(String property, String value) {
+        JSONObject response = connection.execute(
+                JsonBuilder.getBuilder()
+                        .add("commandType", QueryType.FIND.toString())
+                        .add("databaseName", connection.getConfig().getDatabase())
+                        .add("collectionName", entityType.getSimpleName())
+                        .add("searchObject", new JSONObject().put(property, value))
+                        .build()
+        );
+        return JSONUtil.parseJsonToList(response, entityType);
+    }
 
 
 }

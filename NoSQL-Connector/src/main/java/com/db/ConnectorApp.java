@@ -1,11 +1,7 @@
 package com.db;
 
-import com.db.connection.NoSQLDatabaseConnection;
-import com.db.repository.CRUDNoSQLRepository;
 import com.db.test.model.BankAccount;
-import com.db.util.DataType;
-import com.db.util.JSONUtil;
-import com.db.model.request.User;
+import com.db.model.query.DataType;
 import org.json.JSONObject;
 
 import java.lang.reflect.Field;

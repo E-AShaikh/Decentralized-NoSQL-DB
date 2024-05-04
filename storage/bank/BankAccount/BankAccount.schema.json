@@ -1,1 +1,1 @@
-{"balance":"DOUBLE","clientName":"STRING","accountType":"STRING","_id":"STRING","hasInsurance":"BOOLEAN"}
+{"balance":"DOUBLE","clientName":"STRING","accountType":"STRING","id":"LONG","hasInsurance":"BOOLEAN"}

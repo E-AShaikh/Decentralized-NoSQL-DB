@@ -1,13 +1,13 @@
 package com.db.util;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.db.model.query.DataType;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.module.jsonSchema.JsonSchema;
-import com.fasterxml.jackson.module.jsonSchema.JsonSchemaGenerator;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,16 +59,17 @@ public class JSONUtil {
 //        JSONObject response = new JSONObject(jsonString);
         List<T> objects = new ArrayList<>();
 
-        for (String key : response.keySet()) {
-            JSONObject objJson = response.getJSONObject(key);
-            T obj = mapJsonToObject(objJson, clazz);
+        JSONArray jsonArr = (JSONArray) response.get("data");
+
+        for (int i = 0; i < jsonArr.length(); i++) {
+            T obj = mapJsonToObject( (JSONObject) jsonArr.get(i), clazz);
             objects.add(obj);
         }
 
         return objects;
     }
 
-    private static <T> T mapJsonToObject(JSONObject jsonObject, Class<T> clazz) {
+    public static <T> T mapJsonToObject(JSONObject jsonObject, Class<T> clazz) {
         T instance;
         try {
             instance = clazz.newInstance();
@@ -77,7 +78,16 @@ public class JSONUtil {
                 String fieldName = field.getName();
                 if (jsonObject.has(fieldName)) {
                     Object value = jsonObject.get(fieldName);
-                    field.set(instance, value);
+                    Class<?> fieldType = field.getType();
+                    if (fieldType == double.class || fieldType == Double.class) {
+                        if (value instanceof BigDecimal) {
+                            field.set(instance, ((BigDecimal) value).doubleValue());
+                        } else {
+                            field.set(instance, value);
+                        }
+                    } else {
+                        field.set(instance, value);
+                    }
                 }
             }
         } catch (Exception e) {

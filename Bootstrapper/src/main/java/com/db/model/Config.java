@@ -8,8 +8,6 @@ public class Config {
     private int tcpStartingRange;
     private int udpStartingRange;
     private int bootstrapperUdpRange;
-    private int loadBalanceTimeWindow;
-    private int loadBalanceMaxRequests;
     private int bootstrapperTcpPort;
     private int containerNumbers;
 
@@ -41,22 +39,6 @@ public class Config {
 
     public void setBootstrapperUdpRange(int bootstrapperUdpRange) {
         this.bootstrapperUdpRange = bootstrapperUdpRange;
-    }
-
-    public int getLoadBalanceTimeWindow() {
-        return loadBalanceTimeWindow;
-    }
-
-    public void setLoadBalanceTimeWindow(int loadBalanceTimeWindow) {
-        this.loadBalanceTimeWindow = loadBalanceTimeWindow;
-    }
-
-    public int getLoadBalanceMaxRequests() {
-        return loadBalanceMaxRequests;
-    }
-
-    public void setLoadBalanceMaxRequests(int loadBalanceMaxRequests) {
-        this.loadBalanceMaxRequests = loadBalanceMaxRequests;
     }
 
     public int getContainerNumbers() {

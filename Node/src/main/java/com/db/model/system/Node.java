@@ -24,7 +24,7 @@ public class Node {
         this.tcpPort = tcpPort;
     }
     public static Node of(JSONObject nodeObject){
-        Node node=new Node();
+        Node node = new Node();
         node.nodeNumber= (int)((long) nodeObject.get("nodeNumber"));
         node.ip= (String) nodeObject.get("ip");
         node.tcpPort= (int)((long) nodeObject.get("tcpPort"));

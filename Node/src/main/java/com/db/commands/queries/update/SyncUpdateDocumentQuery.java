@@ -17,7 +17,7 @@ public class SyncUpdateDocumentQuery extends Query {
             JSONObject data=CommandUtils.getData(commandJson);
             JSONObject document = CommandUtils.getDocument(commandJson);
             Collection collection=CommandUtils.getCollection(commandJson);
-            DocumentServices documentServices=new DocumentServices();
+            DocumentServices documentServices = new DocumentServices();
             documentServices.updateDocument(document, data, collection, databaseName, collectionName);
         } catch (Exception e) {
             throw new RuntimeException(e);
